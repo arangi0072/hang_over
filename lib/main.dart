@@ -286,7 +286,7 @@ class _MyHomePageState extends State<MyHomePage> {
     RegExp regex = RegExp(emailRegex);
     return regex.hasMatch(email);
   }
-  
+
   String hashPassword(String password) {
     var bytes = utf8.encode(password); // Convert the password string to UTF-8 bytes
     var digest = sha256.convert(bytes); // Generate the SHA-256 hash of the password
