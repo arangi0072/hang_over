@@ -1,0 +1,14 @@
+-keep class com.google.gson.** { *; }
+-keep class com.google.http.** { *; }
+-keep class org.apache.http.** { *; }
+-keep class javax.inject.** { *; }
+-keep class org.codehaus.** { *; }
+-keep class org.apache.commons.** { *; }
+-keep class com.android.volley.** { *; }
+-keep class retrofit.** { *; }
+-keep class okhttp3.** { *; }
+-keep class retrofit2.** { *; }
+-keepattributes Signature
+-keepattributes Exceptions
+-keepattributes InnerClasses
+-keepattributes *Annotation*
