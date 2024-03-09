@@ -1,50 +1,25 @@
 import 'dart:convert';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:hang_over/signup.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:crypto/crypto.dart';
 
-void main() {
-  runApp(const MyApp());
-}
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  // This widget is the root of your application.
+class SignUp extends StatefulWidget {
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'HangOver',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-            seedColor: const Color.fromARGB(255, 14, 43, 80)),
-        useMaterial3: true,
-      ),
-      home: const MyHomePage(title: 'HangOver'),
-    );
-  }
+  _SignUpState createState() => _SignUpState();
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
 
-  final String title;
-
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
+class _SignUpState extends State<SignUp> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _confirmPasswordController =
-      TextEditingController();
+  final TextEditingController _confirmPasswordController = TextEditingController();
   bool _isButtonDisabled = true;
   bool _isPasswordVisible = false;
   bool _isPasswordVisible1 = false;
@@ -54,11 +29,17 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: const Color.fromARGB(255, 14, 43, 80),
-        title: Center(
+        title: const Center(
           child: Text(
-            widget.title,
-            style: const TextStyle(color: Colors.white),
+            "HangOver",
+            style: TextStyle(color: Colors.white),
           ),
+        ),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios, color: Colors.white,),
+          onPressed: () {
+            Navigator.of(context).pop(); // Add functionality to navigate back
+          },
         ),
       ),
       body: SingleChildScrollView(
@@ -71,8 +52,14 @@ class _MyHomePageState extends State<MyHomePage> {
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(0, 30, 0, 0),
                   child: SizedBox(
-                      width: MediaQuery.of(context).size.width * 0.5,
-                      height: MediaQuery.of(context).size.height * 0.35,
+                      width: MediaQuery
+                          .of(context)
+                          .size
+                          .width * 0.5,
+                      height: MediaQuery
+                          .of(context)
+                          .size
+                          .height * 0.35,
                       child: Image.asset("assets/images/logo.png")),
                 ),
               ),
@@ -90,7 +77,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     onChanged: (value) {
                       setState(() {
                         _isButtonDisabled =
-                            !_isFormValid(); // Update button disabled status based on form validity
+                        !_isFormValid(); // Update button disabled status based on form validity
                       });
                     },
                     decoration: const InputDecoration(
@@ -100,9 +87,9 @@ class _MyHomePageState extends State<MyHomePage> {
                       labelText: 'Email',
                       hintText: 'hangover@email.com',
                       labelStyle:
-                          TextStyle(color: Color.fromARGB(255, 14, 43, 80)),
+                      TextStyle(color: Color.fromARGB(255, 14, 43, 80)),
                       hintStyle:
-                          TextStyle(color: Color.fromARGB(55, 14, 43, 80)),
+                      TextStyle(color: Color.fromARGB(55, 14, 43, 80)),
                       prefixIcon: Icon(
                         Icons.email_outlined,
                         color: Color.fromARGB(255, 14, 43, 80),
@@ -130,7 +117,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     onChanged: (value) {
                       setState(() {
                         _isButtonDisabled =
-                            !_isFormValid(); // Update button disabled status based on form validity
+                        !_isFormValid(); // Update button disabled status based on form validity
                       });
                     },
                     decoration: InputDecoration(
@@ -169,20 +156,72 @@ class _MyHomePageState extends State<MyHomePage> {
                 height: 10,
               ),
               Center(
+                child: Container(
+                  constraints: const BoxConstraints(maxWidth: 400.0),
+                  child: TextFormField(
+                    controller: _confirmPasswordController,
+                    style: const TextStyle(fontSize: 16.0),
+                    maxLengthEnforcement: MaxLengthEnforcement.enforced,
+                    keyboardType: TextInputType.visiblePassword,
+                    obscureText: !_isPasswordVisible1,
+                    textInputAction: TextInputAction.done,
+                    onEditingComplete: _isFormValid() ? _handleSignUp : null,
+                    onChanged: (value) {
+                      setState(() {
+                        _isButtonDisabled =
+                        !_isFormValid(); // Update button disabled status based on form validity
+                      });
+                    },
+                    decoration: InputDecoration(
+                      border: const OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                      ),
+                      labelText: 'Confirm Password',
+                      hintText: 'Confirm Password',
+                      labelStyle: const TextStyle(
+                          color: Color.fromARGB(255, 14, 43, 80)),
+                      hintStyle: const TextStyle(
+                          color: Color.fromARGB(55, 14, 43, 80)),
+                      prefixIcon: const Icon(
+                        Icons.password,
+                        color: Color.fromARGB(255, 14, 43, 80),
+                      ),
+                      suffixIcon: IconButton(
+                        onPressed: () {
+                          setState(() {
+                            _isPasswordVisible1 = !_isPasswordVisible1;
+                          });
+                        },
+                        icon: Icon(
+                          _isPasswordVisible1
+                              ? Icons.visibility
+                              : Icons.visibility_off,
+                          color: const Color.fromARGB(255, 14, 43, 80),
+                        ),
+                      ),
+                      counterText: "",
+                    ),
+                  ),
+                ),
+              ),
+              Center(
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(0, 20, 0, 0),
                   child: Container(
-                    width: MediaQuery.of(context).size.width * 0.97,
+                    width: MediaQuery
+                        .of(context)
+                        .size
+                        .width * 0.97,
                     constraints: const BoxConstraints(maxWidth: 400.0),
                     child: ElevatedButton(
                       onPressed: _isButtonDisabled ? null : _handleSignUp,
                       style: ButtonStyle(
                         backgroundColor:
-                            MaterialStateProperty.resolveWith<Color>(
-                          (Set<MaterialState> states) {
+                        MaterialStateProperty.resolveWith<Color>(
+                              (Set<MaterialState> states) {
                             if (states.contains(MaterialState.disabled)) {
                               return const Color.fromRGBO(14, 43, 80, .5);
-                            }else if (states.contains(MaterialState.pressed)) {
+                            } else if (states.contains(MaterialState.pressed)) {
                               return const Color.fromRGBO(14, 43, 80, .5);
                             }
                             return const Color.fromRGBO(14, 43, 80, 1);
@@ -190,7 +229,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         ),
                       ),
                       child: const Text(
-                        "Login",
+                        "SignUp",
                         style: TextStyle(color: Colors.white),
                       ),
                     ),
@@ -207,13 +246,12 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Text("Don't have an account"),
+            const Text("Have an account"),
             TextButton(
               onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => SignUp()),
-                );
+                // Add your button action here
+                Navigator.of(context).pop(); // Add functionality to navigate back
+
               },
               style: ButtonStyle(
                 backgroundColor:
@@ -233,7 +271,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
               ),
               child: const Text(
-                'SignUp',
+                'Login',
                 style: TextStyle(
                   color: Color.fromARGB(255, 14, 43, 80),
                 ),
@@ -262,10 +300,12 @@ class _MyHomePageState extends State<MyHomePage> {
   bool _isFormValid() {
     final String email = _emailController.text.trim();
     final String password = _passwordController.text.trim();
+    final String confirmPassword = _confirmPasswordController.text.trim();
 
     // Add validation logic
     final bool isEmailValid = email.isNotEmpty && isValidEmail(email);
     final bool isPasswordValid = password.isNotEmpty &&
+        password == confirmPassword &&
         password.length >= 5;
 
     return isEmailValid && isPasswordValid;
@@ -280,8 +320,10 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   String hashPassword(String password) {
-    var bytes = utf8.encode(password); // Convert the password string to UTF-8 bytes
-    var digest = sha256.convert(bytes); // Generate the SHA-256 hash of the password
+    var bytes =
+    utf8.encode(password); // Convert the password string to UTF-8 bytes
+    var digest =
+    sha256.convert(bytes); // Generate the SHA-256 hash of the password
     return digest.toString(); // Convert the hash digest to a hexadecimal string
   }
 
@@ -296,7 +338,7 @@ class _MyHomePageState extends State<MyHomePage> {
     try {
       // Send the POST request
       http.Response response = await http.post(
-        Uri.parse('${url!}/login'),
+        Uri.parse('${url!}/signUp'),
         body: {
           'email': _emailController.text.trim(),
           'password': hashedPassword,
@@ -311,11 +353,11 @@ class _MyHomePageState extends State<MyHomePage> {
         if (data['message'] == 'False') {
           if (kIsWeb) {
             ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-              content: Text('Email or password is wrong!'),
+              content: Text('Account already exits on this email!'),
             ));
           } else {
             Fluttertoast.showToast(
-              msg: 'Email or password is wrong!',
+              msg: 'Account already exits on this email!',
               toastLength: Toast.LENGTH_SHORT,
               // Duration for which the toast is visible
               gravity: ToastGravity.BOTTOM,
@@ -329,7 +371,7 @@ class _MyHomePageState extends State<MyHomePage> {
               fontSize: 16.0, // Font size of the toast message
             );
           }
-        }else if (data['message'] == 'wrong'){
+        } else if (data['message'] == 'wrong') {
           if (kIsWeb) {
             ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
               content: Text('Something went wrong!'),
@@ -350,15 +392,14 @@ class _MyHomePageState extends State<MyHomePage> {
               fontSize: 16.0, // Font size of the toast message
             );
           }
-        }
-        else {
+        } else {
           if (kIsWeb) {
             ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-              content: Text('Login Successfully!'),
+              content: Text('Account created successfully!'),
             ));
           } else {
             Fluttertoast.showToast(
-              msg: 'Login Successfully!',
+              msg: 'Account created successfully!',
               toastLength: Toast.LENGTH_SHORT,
               // Duration for which the toast is visible
               gravity: ToastGravity.BOTTOM,
@@ -409,3 +450,4 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 }
+

@@ -30,6 +30,17 @@ migrate_working_dir/
 .pub-cache/
 .pub/
 /build/
+# .gitignore
+
+# Flutter/Dart specific
+.packages
+GeneratedPluginRegistrant.*
+/.idea/
+/.vscode/
+/.vs/
+
+# Dotenv file
+.env
 
 # Symbolication related
 app.*.symbols
