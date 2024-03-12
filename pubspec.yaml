@@ -30,6 +30,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+
   http: ^0.13.3
   fluttertoast: ^8.0.8
   oktoast: ^3.4.0

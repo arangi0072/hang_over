@@ -309,6 +309,7 @@ class _SignUpState extends State<SignUp> {
         password.length >= 5;
 
     return isEmailValid && isPasswordValid;
+
   }
 
   // Method to validate email format

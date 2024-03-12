@@ -20,6 +20,7 @@ class ChatApp extends StatelessWidget {
       home: const ChatHomePage(),
     );
   }
+
 }
 
 class ChatHomePage extends StatelessWidget {
