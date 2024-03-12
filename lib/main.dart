@@ -1,12 +1,15 @@
 import 'dart:convert';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:hang_over/home.dart';
 import 'package:hang_over/signup.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:crypto/crypto.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+
 
 void main() {
   runApp(const MyApp());
@@ -308,6 +311,7 @@ class _MyHomePageState extends State<MyHomePage> {
       if (response.statusCode == 200) {
         // Parse the response body
         Map<String, dynamic> data = json.decode(response.body);
+        print(data);
         if (data['message'] == 'False') {
           if (kIsWeb) {
             ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
@@ -352,6 +356,10 @@ class _MyHomePageState extends State<MyHomePage> {
           }
         }
         else {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => ChatApp()),
+          );
           if (kIsWeb) {
             ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
               content: Text('Login Successfully!'),
@@ -372,6 +380,10 @@ class _MyHomePageState extends State<MyHomePage> {
               fontSize: 16.0, // Font size of the toast message
             );
           }
+          const storage = FlutterSecureStorage();
+          await storage.write(key: 'email', value: _emailController.text.trim());
+          await storage.write(key: 'password', value: _passwordController.text.trim());
+
         }
       } else {
         // Handle error response

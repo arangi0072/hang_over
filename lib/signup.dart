@@ -350,6 +350,7 @@ class _SignUpState extends State<SignUp> {
       if (response.statusCode == 200) {
         // Parse the response body
         Map<String, dynamic> data = json.decode(response.body);
+        print(data);
         if (data['message'] == 'False') {
           if (kIsWeb) {
             ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
