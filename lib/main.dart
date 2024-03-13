@@ -77,7 +77,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   child: SizedBox(
                       width: MediaQuery.of(context).size.width * 0.5,
                       height: MediaQuery.of(context).size.height * 0.35,
-                      child: Image.asset("assets/images/logo.png")),
+                      child: Image.asset("assets/images/img.png")),
                 ),
               ),
               const SizedBox(height: 30.0),
@@ -90,6 +90,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     maxLengthEnforcement: MaxLengthEnforcement.enforced,
                     keyboardType: TextInputType.emailAddress,
                     textInputAction: TextInputAction.next,
+                    maxLength: 64,
                     onEditingComplete: () => FocusScope.of(context).nextFocus(),
                     onChanged: (value) {
                       setState(() {
@@ -129,6 +130,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     keyboardType: TextInputType.visiblePassword,
                     obscureText: !_isPasswordVisible,
                     textInputAction: TextInputAction.next,
+                    maxLength: 20,
                     onFieldSubmitted: (_) => FocusScope.of(context).nextFocus(),
                     // onEditingComplete: () => FocusScope.of(context).nextFocus(),
                     onChanged: (value) {

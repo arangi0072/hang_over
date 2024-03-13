@@ -1,20 +1,17 @@
 import 'dart:convert';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:hang_over/username.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:crypto/crypto.dart';
 
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-
 class SignUp extends StatefulWidget {
   @override
   _SignUpState createState() => _SignUpState();
 }
-
 
 class _SignUpState extends State<SignUp> {
   final TextEditingController _emailController = TextEditingController();
@@ -60,7 +57,7 @@ class _SignUpState extends State<SignUp> {
                           .of(context)
                           .size
                           .height * 0.35,
-                      child: Image.asset("assets/images/logo.png")),
+                      child: Image.asset("assets/images/img.png")),
                 ),
               ),
               const SizedBox(height: 30.0),
@@ -73,6 +70,7 @@ class _SignUpState extends State<SignUp> {
                     maxLengthEnforcement: MaxLengthEnforcement.enforced,
                     keyboardType: TextInputType.emailAddress,
                     textInputAction: TextInputAction.next,
+                    maxLength: 64,
                     onEditingComplete: () => FocusScope.of(context).nextFocus(),
                     onChanged: (value) {
                       setState(() {
@@ -110,6 +108,7 @@ class _SignUpState extends State<SignUp> {
                     style: const TextStyle(fontSize: 16.0),
                     maxLengthEnforcement: MaxLengthEnforcement.enforced,
                     keyboardType: TextInputType.visiblePassword,
+                    maxLength: 20,
                     obscureText: !_isPasswordVisible,
                     textInputAction: TextInputAction.next,
                     onFieldSubmitted: (_) => FocusScope.of(context).nextFocus(),
@@ -163,6 +162,7 @@ class _SignUpState extends State<SignUp> {
                     style: const TextStyle(fontSize: 16.0),
                     maxLengthEnforcement: MaxLengthEnforcement.enforced,
                     keyboardType: TextInputType.visiblePassword,
+                    maxLength: 20,
                     obscureText: !_isPasswordVisible1,
                     textInputAction: TextInputAction.done,
                     onEditingComplete: _isFormValid() ? _handleSignUp : null,
@@ -395,6 +395,10 @@ class _SignUpState extends State<SignUp> {
             );
           }
         } else {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => UserName()),
+          );
           if (kIsWeb) {
             ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
               content: Text('Account created successfully!'),
@@ -452,4 +456,3 @@ class _SignUpState extends State<SignUp> {
     }
   }
 }
-
