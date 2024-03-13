@@ -1,6 +1,6 @@
 # hang_over
 
-A new Flutter project.
+HangOver
 
 ## Getting Started
 
