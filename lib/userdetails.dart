@@ -1,16 +1,17 @@
 import 'dart:convert';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:hang_over/userdetails.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-class UserName extends StatefulWidget {
+class UserDetails extends StatefulWidget {
+  const UserDetails({super.key});
+
   @override
-  _UserNameState createState() => _UserNameState();
+  _UserDetailsState createState() => _UserDetailsState();
 }
 
-class _UserNameState extends State<UserName> {
+class _UserDetailsState extends State<UserDetails> {
   final TextEditingController _userNameController = TextEditingController();
   bool _isButtonDisabled = true;
 
@@ -50,7 +51,14 @@ class _UserNameState extends State<UserName> {
                         .of(context)
                         .size
                         .height * 0.35,
-                    child: Image.asset("assets/images/img.png"),
+                    child: const CircleAvatar(
+                      backgroundColor: Color.fromARGB(75, 14, 43, 80),
+                      child: Icon(
+                        Icons.person,
+                        color: Colors.white,
+                        size: 48,
+                      ),
+                    ),
                   ),
                 ),
               ),
@@ -98,12 +106,7 @@ class _UserNameState extends State<UserName> {
                         .width * 0.97,
                     constraints: const BoxConstraints(maxWidth: 400.0),
                     child: ElevatedButton(
-                      onPressed: _isButtonDisabled ? null : (){
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => const UserDetails()),
-                        );
-                      },
+                      onPressed: _isButtonDisabled ? null : (){},
                       style: ButtonStyle(
                         backgroundColor:
                         MaterialStateProperty.resolveWith<Color>(
