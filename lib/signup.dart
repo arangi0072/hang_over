@@ -26,12 +26,11 @@ class _SignUpState extends State<SignUp> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: const Color.fromARGB(255, 14, 43, 80),
-        title: const Center(
-          child: Text(
+        title: const Text(
             "HangOver",
             style: TextStyle(color: Colors.white),
           ),
-        ),
+        centerTitle: true,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios, color: Colors.white,),
           onPressed: () {

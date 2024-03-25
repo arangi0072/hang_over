@@ -1,8 +1,13 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:permission_handler/permission_handler.dart';
+
+import 'image_module.dart';
 
 class UserDetails extends StatefulWidget {
   const UserDetails({super.key});
@@ -11,21 +16,47 @@ class UserDetails extends StatefulWidget {
   _UserDetailsState createState() => _UserDetailsState();
 }
 
-class _UserDetailsState extends State<UserDetails> {
+class _UserDetailsState extends State<UserDetails> with WidgetsBindingObserver{
+  File? _imageFile;
+  final ImageModel _model = ImageModel();
+  bool _detectPermission = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
   final TextEditingController _userNameController = TextEditingController();
-  bool _isButtonDisabled = true;
+  final TextEditingController _userAboutController = TextEditingController();
+
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed &&
+        _detectPermission &&
+        (_model.imageSection == ImageSection.noStoragePermissionPermanent)) {
+      _detectPermission = false;
+      _model.requestFilePermission();
+    } else if (state == AppLifecycleState.paused &&
+        _model.imageSection == ImageSection.noStoragePermissionPermanent) {
+      _detectPermission = true;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: const Color.fromARGB(255, 14, 43, 80),
-        title: const Center(
-          child: Text(
+        title: const Text(
             "HangOver",
             style: TextStyle(color: Colors.white),
           ),
-        ),
+        centerTitle: true,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios, color: Colors.white,),
           onPressed: () {
@@ -40,27 +71,36 @@ class _UserDetailsState extends State<UserDetails> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Center(
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(0, 30, 0, 0),
-                  child: SizedBox(
-                    width: MediaQuery
-                        .of(context)
-                        .size
-                        .width,
-                    height: MediaQuery
-                        .of(context)
-                        .size
-                        .height * 0.35,
-                    child: const CircleAvatar(
-                      backgroundColor: Color.fromARGB(75, 14, 43, 80),
-                      child: Icon(
-                        Icons.person,
-                        color: Colors.white,
-                        size: 48,
+                child: Stack(
+                  children: [
+                    Column(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(0, 30, 0, 0),
+                          child: SizedBox(
+                            width: MediaQuery.of(context).size.width,
+                            height: MediaQuery.of(context).size.height * 0.35,
+                            child: CircleAvatar(
+                              radius: 50,
+                              backgroundImage: _imageFile != null ? FileImage(_imageFile!) : null,
+                              child: _imageFile == null ? const Icon(Icons.person, size: 150) : null,
+                            ),
+                          ) ,
+                        ),
+                      ],
+                    ),
+                    Positioned(
+                      bottom: 1.0,
+                      right: 25.0,
+                      child: FloatingActionButton(
+                        onPressed: () async {
+                          _checkPermissionsAndPick();
+                        },
+                        child: const Icon(Icons.camera_alt),
                       ),
                     ),
-                  ),
-                ),
+                  ],
+                )
               ),
               const SizedBox(height: 30.0),
               Center(
@@ -71,24 +111,52 @@ class _UserDetailsState extends State<UserDetails> {
                     style: const TextStyle(fontSize: 16.0),
                     maxLengthEnforcement: MaxLengthEnforcement.enforced,
                     keyboardType: TextInputType.text,
-                    maxLength: 20,
+                    maxLength: 64,
                     textInputAction: TextInputAction.next,
                     onEditingComplete: () => FocusScope.of(context).nextFocus(),
-                    onChanged: (value) {
-                      _checkFormValidity();
-                    },
                     decoration: const InputDecoration(
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.all(Radius.circular(10.0)),
                       ),
-                      labelText: 'Username',
-                      hintText: 'Username',
+                      labelText: 'Name',
+                      hintText: 'Name',
                       labelStyle:
                       TextStyle(color: Color.fromARGB(255, 14, 43, 80)),
                       hintStyle:
                       TextStyle(color: Color.fromARGB(55, 14, 43, 80)),
                       prefixIcon: Icon(
                         Icons.person,
+                        color: Color.fromARGB(255, 14, 43, 80),
+                      ),
+                      counterText: "",
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 30.0),
+              Center(
+                child: Container(
+                  constraints: const BoxConstraints(maxWidth: 400.0),
+                  child: TextFormField(
+                    controller: _userAboutController,
+                    style: const TextStyle(fontSize: 16.0),
+                    maxLengthEnforcement: MaxLengthEnforcement.enforced,
+                    keyboardType: TextInputType.text,
+                    maxLength: 200,
+                    textInputAction: TextInputAction.next,
+                    onEditingComplete: () => FocusScope.of(context).nextFocus(),
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                      ),
+                      labelText: 'About',
+                      hintText: 'About',
+                      labelStyle:
+                      TextStyle(color: Color.fromARGB(255, 14, 43, 80)),
+                      hintStyle:
+                      TextStyle(color: Color.fromARGB(55, 14, 43, 80)),
+                      prefixIcon: Icon(
+                        Icons.edit,
                         color: Color.fromARGB(255, 14, 43, 80),
                       ),
                       counterText: "",
@@ -106,14 +174,12 @@ class _UserDetailsState extends State<UserDetails> {
                         .width * 0.97,
                     constraints: const BoxConstraints(maxWidth: 400.0),
                     child: ElevatedButton(
-                      onPressed: _isButtonDisabled ? null : (){},
+                      onPressed: (){},
                       style: ButtonStyle(
                         backgroundColor:
                         MaterialStateProperty.resolveWith<Color>(
                               (Set<MaterialState> states) {
-                            if (states.contains(MaterialState.disabled)) {
-                              return const Color.fromRGBO(14, 43, 80, .5);
-                            } else if (states.contains(MaterialState.pressed)) {
+                            if (states.contains(MaterialState.pressed)) {
                               return const Color.fromRGBO(14, 43, 80, .5);
                             }
                             return const Color.fromRGBO(14, 43, 80, 1);
@@ -134,29 +200,36 @@ class _UserDetailsState extends State<UserDetails> {
       ),
     );
   }
+  Future<void> _pickImage(ImageSource source) async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+    String? filePath = pickedFile?.path;
 
-  Future<void> _checkFormValidity() async {
-    final String userName = _userNameController.text.trim();
-    final bool isValid = await isUserName(userName);
-
-    setState(() {
-      _isButtonDisabled = !isValid;
-    });
-  }
-
-  Future<bool> isUserName(String userName) async {
-    if (userName.length < 3|| userName.contains(' ') || !_isValidUserName(userName)) {
-      return false;
+    if (pickedFile != null) {
+      setState(() {
+        _imageFile = File(filePath!);
+      });
     }
-
-    return await sendPostRequest(userName);
   }
 
-  bool _isValidUserName(String userName) {
-    // Regular expression to allow only letters, numbers, and underscores
-    RegExp regex = RegExp(r'^[a-zA-Z_][a-zA-Z0-9_]*$');
-    return regex.hasMatch(userName);
+  Future<void> _checkPermissionsAndPick() async {
+    final hasFilePermission = await _model.requestFilePermission();
+    print(hasFilePermission);
+    if (hasFilePermission) {
+      try {
+        await _pickImage(ImageSource.gallery);
+      } on Exception catch (e) {
+        debugPrint('Error when picking a file: $e');
+        // Show an error to the user if the pick file failed
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('An error occurred when picking a file'),
+          ),
+        );
+      }
+    }
   }
+
 
   Future<bool> sendPostRequest(String userName) async {
     // Define the URL of the API endpoint
@@ -193,3 +266,13 @@ class _UserDetailsState extends State<UserDetails> {
     }
   }
 }
+
+// class UserPic extends StatelessWidget {
+//
+//   @override
+//   Widget build(BuildContext context) {
+//
+//   }
+//
+// }
+
